@@ -1,5 +1,7 @@
-using System.Reflection;
+﻿using System.Reflection;
 using AdventureSetup;
+using Grace.DependencyInjection;
+using Grace.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -26,6 +28,10 @@ if (!File.Exists(mapFileName))
 
 // Configure the host
 using var host = Host.CreateDefaultBuilder(args)
+    .UseGrace(new InjectionScopeConfiguration
+    {
+        Behaviors = { AllowInstanceAndFactoryToReturnNull = true }
+    })
     .UseOrleans(siloBuilder =>
     {
         siloBuilder.UseLocalhostClustering();

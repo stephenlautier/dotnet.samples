@@ -7,6 +7,9 @@
     <PackageReference Include="Microsoft.Extensions.Hosting"/>
     <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
     <PackageReference Include="Microsoft.Orleans.Server"/>
+    <PackageReference Include="Grace"/>
+    <PackageReference Include="Grace.DependencyInjection.Extensions" />
+    <PackageReference Include="Grace.Extensions.Hosting" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AdventureGrainInterfaces\AdventureGrainInterfaces.csproj"/>
