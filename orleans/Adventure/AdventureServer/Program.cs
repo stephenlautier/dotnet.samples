@@ -30,8 +30,14 @@ if (!File.Exists(mapFileName))
 using var host = Host.CreateDefaultBuilder(args)
     .UseGrace(new InjectionScopeConfiguration
     {
-        Behaviors = { AllowInstanceAndFactoryToReturnNull = true }
+        //Behaviors = {
+        //    AllowInstanceAndFactoryToReturnNull = true,
+
+        //},
+        //AutoRegisterUnknown = true,
+
     })
+    .ConfigureServices(s => s.AddKeyedSingleton<NamedService<IHeroesIndex>>("hots", (sp, k) => new() { Name = "howtz", Value = new HeroesIndex() }))
     .UseOrleans(siloBuilder =>
     {
         siloBuilder.UseLocalhostClustering();
@@ -39,6 +45,8 @@ using var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 // Start the host
+var hotsIndex = host.Services.GetRequiredKeyedService<NamedService<IHeroesIndex>>("hots");
+
 await host.StartAsync();
 
 Console.WriteLine("Map file name is '{0}'.", mapFileName);
@@ -58,3 +66,24 @@ Console.ReadKey();
 await host.StopAsync();
 
 return 0;
+
+
+
+public class NamedService<T>
+{
+    public string Name { get; set; }
+    public T Value { get; set; }
+}
+
+public interface IHeroesIndex
+{
+}
+
+public class HeroesIndex : IHeroesIndex
+{
+
+}
+public class StrategyIndex
+{
+
+}
