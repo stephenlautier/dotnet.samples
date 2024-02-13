@@ -1,6 +1,6 @@
-using System.Text;
-using System.Threading;
+﻿using System.Text;
 using AdventureGrainInterfaces;
+using Orleans.Runtime;
 
 namespace AdventureGrains;
 
@@ -11,12 +11,37 @@ public class PlayerGrain : Grain, IPlayerGrain
 
     private bool _killed = false;
     private PlayerInfo _myInfo = null!;
+    private readonly IPersistentState<PlayerInfo> _store;
+
+    /// <inheritdoc />
+    public PlayerGrain(
+        IPersistentStateFactory persistentStateFactory,
+        IGrainContext grainContext
+    )
+    {
+        _store = persistentStateFactory.Create<PlayerInfo>(
+            grainContext,
+            new PersistentStateAttribute("playerState", "storez")
+        );
+
+        // todo: REMOVE ONLY FOR TESTING!
+        this.RegisterTimer(
+            state =>
+            {
+                DeactivateOnIdle();
+                return Task.CompletedTask;
+            }, null, TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(-1));
+    }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
         _myInfo = new(this.GetPrimaryKey(), "nobody");
         return base.OnActivateAsync(cancellationToken);
     }
+
+    /// <inheritdoc />
+    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
+        => base.OnDeactivateAsync(reason, cancellationToken);
 
     Task<string?> IPlayerGrain.Name() => Task.FromResult(_myInfo?.Name);
 
@@ -26,7 +51,7 @@ public class PlayerGrain : Grain, IPlayerGrain
     async Task IPlayerGrain.Die()
     {
         // Drop everything
-        var dropTasks = new List<Task<string?>>();        
+        var dropTasks = new List<Task<string?>>();
         foreach (var thing in _things.ToArray() /* New collection */)
         {
             dropTasks.Add(Drop(thing));
@@ -79,10 +104,10 @@ public class PlayerGrain : Grain, IPlayerGrain
         return "I don't understand.";
     }
 
-    Task IPlayerGrain.SetName(string name)
+    async Task IPlayerGrain.SetName(string name)
     {
         _myInfo = _myInfo with { Name = name };
-        return Task.CompletedTask;
+        await _store.WriteStateAsync();
     }
 
     Task IPlayerGrain.SetRoomGrain(IRoomGrain room)

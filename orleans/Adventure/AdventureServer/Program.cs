@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using AdventureGrainInterfaces;
 using AdventureSetup;
 using Grace.DependencyInjection;
 using Grace.Extensions.Hosting;
@@ -34,18 +35,20 @@ using var host = Host.CreateDefaultBuilder(args)
         //    AllowInstanceAndFactoryToReturnNull = true,
 
         //},
-        //AutoRegisterUnknown = true,
-
+        AutoRegisterUnknown = false,
     })
-    .ConfigureServices(s => s.AddKeyedSingleton<NamedService<IHeroesIndex>>("hots", (sp, k) => new() { Name = "howtz", Value = new HeroesIndex() }))
+    //.ConfigureServices(s => s.AddKeyedSingleton<NamedService<IHeroesIndex>>("hots", (sp, k) => new() { Name = "howtz", Value = new HeroesIndex() }))
     .UseOrleans(siloBuilder =>
     {
         siloBuilder.UseLocalhostClustering();
+        siloBuilder.AddMemoryGrainStorage("storez");
     })
     .Build();
 
 // Start the host
-var hotsIndex = host.Services.GetRequiredKeyedService<NamedService<IHeroesIndex>>("hots");
+var strat = host.Services.GetService<StrategyIndex>();
+//var hotsIndex1 = host.Services.GetService<NamedService<IHeroesIndex>>();
+//var hotsIndex = host.Services.GetRequiredKeyedService<NamedService<IHeroesIndex>>("hots");
 
 await host.StartAsync();
 
@@ -57,12 +60,19 @@ var client = host.Services.GetRequiredService<IGrainFactory>();
 var adventure = new AdventureGame(client);
 await adventure.Configure(mapFileName);
 
+var player = client.GetGrain<IPlayerGrain>(Guid.NewGuid());
+await player.SetName("Chiko");
+
 Console.WriteLine("Setup completed.");
 Console.WriteLine("Now you can launch the client.");
 
 // Exit when any key is pressed
 Console.WriteLine("Press any key to exit.");
 Console.ReadKey();
+
+player = client.GetGrain<IPlayerGrain>(Guid.NewGuid());
+await player.SetName("Chiko");
+
 await host.StopAsync();
 
 return 0;
