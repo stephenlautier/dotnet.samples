@@ -30,7 +30,7 @@ public class PlayerGrain : Grain, IPlayerGrain
             {
                 DeactivateOnIdle();
                 return Task.CompletedTask;
-            }, null, TimeSpan.FromSeconds(8), TimeSpan.FromMilliseconds(-1));
+            }, null, TimeSpan.FromSeconds(3), TimeSpan.FromMilliseconds(-1));
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
