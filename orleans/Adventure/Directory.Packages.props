@@ -4,6 +4,22 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <!-- .net7 + orleans7 -->
+    <!-- <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.16" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+
+    <PackageVersion Include="Microsoft.Orleans.Client" Version="7.2.4" />
+    <PackageVersion Include="Microsoft.Orleans.Runtime" Version="7.2.4" />
+    <PackageVersion Include="Microsoft.Orleans.Sdk" Version="7.2.4" />
+    <PackageVersion Include="Microsoft.Orleans.Server" Version="7.2.4" />
+
+
+    <PackageVersion Include="Grace" Version="7.2.0" />
+    <PackageVersion Include="Grace.Extensions.Hosting" Version="7.1.0" />
+    <PackageVersion Include="Grace.DependencyInjection.Extensions" Version="7.1.0" /> -->
+
+    <!-- .net8 + orleans8 -->
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
