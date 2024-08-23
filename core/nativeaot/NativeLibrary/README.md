@@ -9,20 +9,24 @@ Create a .NET class library project using `dotnet new classlib -o NativeLibrary`
 ## Building shared libraries
 
 ```bash
-> dotnet publish /p:NativeLib=Shared --use-current-runtime
+> dotnet publish --use-current-runtime
 ```
 
 The above command will drop a shared library (Windows `.dll`, macOS `.dylib`, Linux `.so`) in `./bin/Release/net8.0/[RID]/publish/` folder and will have the same name as the folder in which your source file is present.
 
 ### Loading shared libraries from C and importing methods
 
-For reference, you can read the file LoadLibrary.c.
+For reference, you can read the file _LoadLibrary.c_.
+
+> [!NOTE]
+> On Windows the platform (x86 and x64) must match between the .NET AOT library and the tool used to compile and link the C code. For more information, see [How to: Enable a 64-Bit, x64 hosted MSVC toolset on the command line](https://learn.microsoft.com/en-us/cpp/build/how-to-enable-a-64-bit-visual-cpp-toolset-on-the-command-line?view=msvc-170).
+
 The first thing you'll have to do in order to have a proper "loader" that loads your shared library is to add these directives
 
 ```c
 #ifdef _WIN32
 #include "windows.h"
-#define symLoad GetProcAddress GetProcAddress
+#define symLoad GetProcAddress
 #else
 #include "dlfcn.h"
 #define symLoad dlsym
@@ -61,6 +65,8 @@ The last thing to do is to actually call the method we have imported.
 int result =  MyImport(5,3);
 ```
 
+Note that the .NET Runtime does not support unloading. Once a handle to the shared library is created, the library cannot be closed with `dlclose/FreeLibrary`.
+
 ## Exporting methods
 
 For a C# method in the native library to be consumable by external programs, it has to be explicitly exported using the `[UnmanagedCallersOnly]` attribute.
@@ -84,6 +90,14 @@ After the native library is built, the above C# `Add` method will be exported as
 The sample [source code](Class1.cs) demonstrates common techniques used to stay within these limitations.
 
 ## Building static libraries
+
+> [!WARNING]
+> It's preferred to build shared libraries than static libraries:
+>
+> * All code in the loadable module must be compiled with C/C++ compiler version and options that are compatible with native AOT static libraries.
+> * It's also not possible to mix multiple native AOT compiled static libraries within the same loadable module.
+>
+> These problems don't exist when you build a shared library.
 
 ```bash
 > dotnet publish /p:NativeLib=Static --use-current-runtime
