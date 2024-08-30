@@ -1,5 +1,6 @@
+﻿using BlazorWasm.Models;
+using BlazorWasm.Server;
 using Orleans.Runtime;
-using BlazorWasm.Models;
 
 namespace BlazorWasm.Grains;
 
@@ -13,6 +14,8 @@ public class TodoGrain : Grain, ITodoGrain
 
     public TodoGrain(
         ILogger<TodoGrain> logger,
+        ITodoClient todoClient,
+        IActionClient actionClient,
         [PersistentState("State")] IPersistentState<State> state)
     {
         _logger = logger;

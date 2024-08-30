@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
 using BlazorWasm.Grains;
 using BlazorWasm.Models;
-using System.ComponentModel.DataAnnotations;
+using BlazorWasm.Server;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Sample.Silo.Api;
 
@@ -11,7 +12,10 @@ public class TodoController : ControllerBase
 {
     private readonly IGrainFactory _factory;
 
-    public TodoController(IGrainFactory factory) => _factory = factory;
+    public TodoController(IGrainFactory factory, ITodoClient client, IActionClient actionClient)
+    {
+        _factory = factory;
+    }
 
     [HttpGet("{itemKey}")]
     public Task<TodoItem?> GetAsync([Required] Guid itemKey) =>

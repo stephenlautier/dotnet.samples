@@ -1,25 +1,33 @@
-﻿using Microsoft.OpenApi.Models;
-using Sample.Silo.Api;
+﻿using BlazorWasm.Server;
+using Microsoft.OpenApi.Models;
 using Orleans.Providers;
+using Sample.Silo.Api;
 
 bool isDevelopment = false;
+
+
 
 await Host.CreateDefaultBuilder(args)
     .UseOrleans((ctx, builder) =>
     {
         isDevelopment = ctx.HostingEnvironment.IsDevelopment();
 
+        builder.Services.
+            AddSingleton<IActionClient, OrleansClient>();
         builder.UseLocalhostClustering();
         builder.AddMemoryGrainStorageAsDefault();
         builder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>("MemoryStreams");
-        builder.AddMemoryGrainStorage("PubSubStore");    
+        builder.AddMemoryGrainStorage("PubSubStore");
     })
     .ConfigureWebHostDefaults(webBuilder =>
     {
         webBuilder
             .ConfigureServices(services =>
             {
-                services.AddControllers()
+                services
+                    .AddSingleton<ITodoClient, TodoClient>()
+                    .AddSingleton<IActionClient, WebClient>()
+                    .AddControllers()
                     .AddApplicationPart(typeof(WeatherController).Assembly);
 
                 services.AddSwaggerGen(options =>
